@@ -65,3 +65,44 @@ demonstration and development purposes.
 
 Developed as a full-stack software engineering
 portfolio project.
+
+
+## Local Infrastructure Setup
+
+### Prerequisites
+
+- Node.js
+- npm
+- Git
+- Docker Desktop
+- Docker Compose
+
+### Getting Started
+
+1. Clone the repository.
+2. Copy `.env.example` to `.env`.
+3. Configure your local environment variables.
+4. Start the infrastructure:
+
+   ```bash
+   docker compose up -d
+   ```
+
+5. Verify the containers:
+
+   ```bash
+   docker compose ps
+   ```
+
+### Local Services
+
+| Service | Host | Port |
+|---------|------|------|
+| PostgreSQL | localhost | 5433 |
+| Redis | localhost | 6380 |
+
+To stop the infrastructure:
+
+```bash
+docker compose stop
+```
