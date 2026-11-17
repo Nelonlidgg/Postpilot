@@ -8,7 +8,18 @@
     "apps/*",
     "packages/*"
   ],
-  "scripts": {},
+  
+"scripts": {
+  "dev:api": "npm run start:dev --workspace=@postpilot/api",
+  "build:api": "npm run build --workspace=@postpilot/api",
+  "test:api": "npm run test --workspace=@postpilot/api",
+  "test:e2e": "npm run test:e2e --workspace=@postpilot/api",
+  "db:generate": "npm run prisma:generate --workspace=@postpilot/api",
+  "db:validate": "npm run prisma:validate --workspace=@postpilot/api",
+  "db:migrate": "npm run prisma:migrate --workspace=@postpilot/api",
+  "infra:up": "docker compose up -d",
+  "infra:stop": "docker compose stop"
+},
   "keywords": [
     "social-media",
     "content-scheduler",
