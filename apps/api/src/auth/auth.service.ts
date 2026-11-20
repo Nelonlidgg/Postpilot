@@ -14,6 +14,8 @@ import { Prisma } from '../generated/prisma/client.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 
+import { SessionsService } from './sessions.service.js';
+
 import {
   generateRefreshToken,
   hashRefreshToken,
@@ -24,10 +26,11 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-  ) {}
+  private readonly usersService: UsersService,
+  private readonly prisma: PrismaService,
+  private readonly jwtService: JwtService,
+  private readonly sessionsService: SessionsService,
+) {}
 
   async register(dto: RegisterDto) {
     const passwordHash = await argon2.hash(
@@ -66,7 +69,13 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto) {
+  async login(
+  dto: LoginDto,
+  metadata: {
+    userAgent?: string;
+    ipAddress?: string;
+  } = {},
+) {
     const user =
       await this.usersService.findByEmail(
         dto.email,
@@ -91,16 +100,19 @@ export class AuthService {
 
     const refreshToken = generateRefreshToken();
 
-    const session = await this.prisma.session.create({
-      data: {
-        userId: user.id,
-        refreshTokenHash:
-          hashRefreshToken(refreshToken),
-        expiresAt: new Date(
-          Date.now() + SESSION_TTL_MS,
-        ),
-      },
-    });
+   
+const session = await this.prisma.session.create({
+  data: {
+    userId: user.id,
+    refreshTokenHash:
+      hashRefreshToken(refreshToken),
+    expiresAt: new Date(
+      Date.now() + SESSION_TTL_MS,
+    ),
+    userAgent: metadata.userAgent,
+    ipAddress: metadata.ipAddress,
+  },
+});
 
     const accessToken =
       await this.signAccessToken(
@@ -131,6 +143,61 @@ export class AuthService {
 
     return user;
   }
+
+
+async refresh(refreshToken: string) {
+  const result =
+    await this.sessionsService.rotate(
+      refreshToken,
+    );
+
+  const accessToken =
+    await this.signAccessToken(
+      result.userId,
+      result.sessionId,
+    );
+
+  return {
+    accessToken,
+    refreshToken: result.refreshToken,
+    tokenType: 'Bearer',
+    expiresIn: ACCESS_TOKEN_TTL,
+  };
+}
+
+async logout(
+  userId: string,
+  sessionId: string,
+) {
+  await this.sessionsService.revoke(
+    userId,
+    sessionId,
+  );
+
+  return {
+    message: 'Logged out successfully',
+  };
+}
+
+async getSessions(
+  userId: string,
+  currentSessionId: string,
+) {
+  return this.sessionsService.list(
+    userId,
+    currentSessionId,
+  );
+}
+
+async revokeSession(
+  userId: string,
+  sessionId: string,
+) {
+  return this.sessionsService.revoke(
+    userId,
+    sessionId,
+  );
+}
 
   private signAccessToken(
     userId: string,

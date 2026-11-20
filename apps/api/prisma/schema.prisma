@@ -23,13 +23,13 @@ model User {
   @@map("users")
 }
 
+
 model Session {
   id               String    @id @default(uuid()) @db.Uuid
   userId           String    @db.Uuid
   refreshTokenHash String    @unique
   expiresAt        DateTime
   revokedAt        DateTime?
-  replacedById     String?   @db.Uuid
   userAgent        String?
   ipAddress        String?
   createdAt        DateTime  @default(now())
@@ -37,7 +37,22 @@ model Session {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  usedTokens UsedRefreshToken[]
+
   @@index([userId])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+
+model UsedRefreshToken {
+  id         String   @id @default(uuid()) @db.Uuid
+  tokenHash  String   @unique
+  sessionId  String   @db.Uuid
+  usedAt     DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("used_refresh_tokens")
 }
