@@ -14,6 +14,8 @@ import type {
   AuthenticatedRequest,
 } from '../types/auth.types.js';
 
+import { isUUID } from 'class-validator';
+
 @Injectable()
 export class AccessTokenGuard
   implements CanActivate
@@ -49,11 +51,13 @@ export class AccessTokenGuard
         >(token);
 
       if (
-        typeof payload.sub !== 'string' ||
-        typeof payload.sid !== 'string'
-      ) {
-        throw new Error('Invalid token payload');
-      }
+    typeof payload.sub !== 'string' ||
+    typeof payload.sid !== 'string' ||
+    !isUUID(payload.sub) ||
+    !isUUID(payload.sid)
+    ) {
+      throw new Error('Invalid token payload');
+    }
     } catch {
       throw new UnauthorizedException(
         'Invalid or expired access token',

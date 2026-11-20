@@ -17,6 +17,7 @@
   "db:generate": "npm run prisma:generate --workspace=@postpilot/api",
   "db:validate": "npm run prisma:validate --workspace=@postpilot/api",
   "db:migrate": "npm run prisma:migrate --workspace=@postpilot/api",
+  "db:deploy": "npm exec --workspace=@postpilot/api -- prisma migrate deploy",
   "infra:up": "docker compose up -d",
   "infra:stop": "docker compose stop"
 },

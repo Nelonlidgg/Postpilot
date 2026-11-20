@@ -4,8 +4,8 @@
 ## Development Roadmap
 
 - [x] Phase 00 - Planning and environment setup
-- [ ] Phase 01 - Backend foundation and database
-- [ ] Phase 02 - Authentication and user management
+- [x] Phase 01 - Backend foundation and database
+- [x] Phase 02 - Authentication and user management
 - [ ] Phase 03 - Workspace management and RBAC
 - [ ] Phase 04 - Frontend foundation and authentication
 - [ ] Phase 05 - Social account connections
@@ -46,3 +46,11 @@ Phase 00 - Planning and environment setup.
 ## Known Issues
 
 None currently documented.
+
+## Testing
+
+Authentication end-to-end tests require the
+separate postpilot_test database.
+
+Apply committed migrations to the test database
+before executing npm run test:e2e.

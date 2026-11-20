@@ -4,14 +4,17 @@ import {
   Controller,
   Delete,
   Get,
-  Post,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
+
+import { Throttle } from '@nestjs/throttler';
 
 import type { Request } from 'express';
 
@@ -31,11 +34,26 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
+  // REGISTER
+  @Throttle({
+    default: {
+      limit: 20,
+      ttl: 60000,
+    },
+  })
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
+  // LOGIN
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Header('Cache-Control', 'no-store')
   @Post('login')
   @HttpCode(HttpStatus.OK)
   login(
@@ -48,6 +66,14 @@ export class AuthController {
     });
   }
 
+  // REFRESH TOKEN
+  @Throttle({
+    default: {
+      limit: 30,
+      ttl: 60000,
+    },
+  })
+  @Header('Cache-Control', 'no-store')
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refresh(@Body() dto: RefreshTokenDto) {
@@ -56,6 +82,7 @@ export class AuthController {
     );
   }
 
+  // LOGOUT
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AccessTokenGuard)
@@ -68,6 +95,7 @@ export class AuthController {
     );
   }
 
+  // GET AUTHENTICATED USER
   @Get('me')
   @UseGuards(AccessTokenGuard)
   getMe(
@@ -78,6 +106,7 @@ export class AuthController {
     );
   }
 
+  // LIST ACTIVE SESSIONS
   @Get('sessions')
   @UseGuards(AccessTokenGuard)
   getSessions(
@@ -89,6 +118,7 @@ export class AuthController {
     );
   }
 
+  // REVOKE A SESSION
   @Delete('sessions/:id')
   @UseGuards(AccessTokenGuard)
   revokeSession(
