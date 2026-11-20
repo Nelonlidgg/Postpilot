@@ -8,6 +8,7 @@ export function validateEnv(
     'API_PORT',
     'REDIS_HOST',
     'REDIS_PORT',
+    'JWT_SECRET',
   ];
 
   for (const variable of requiredVariables) {
