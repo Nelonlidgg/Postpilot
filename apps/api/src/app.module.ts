@@ -16,6 +16,7 @@ import { HealthModule } from './health/health.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { validateEnv } from './config/env.validation.js';
+import { WorkspacesModule } from './workspaces/workspaces.module.js';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { validateEnv } from './config/env.validation.js';
     HealthModule,
     UsersModule,
     AuthModule,
+    WorkspacesModule,
   ],
 
   controllers: [AppController],
